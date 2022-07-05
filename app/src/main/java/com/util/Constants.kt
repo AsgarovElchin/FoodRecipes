@@ -1,4 +1,4 @@
-package com.elchinasgarov
+package com.util
 
 object Constants {
     const val API_KEY = "cc3eb19dc2db4de1a6fd1e93cb715ff3"

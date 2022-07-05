@@ -1,4 +1,4 @@
-package com
+package com.data.network
 
 import com.elchinasgarov.models.FoodRecipe
 import retrofit2.Response
