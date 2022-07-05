@@ -1,10 +1,11 @@
-package com.elchinasgarov.foodrecipes
+package com.elchinasgarov.ui
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.elchinasgarov.foodrecipes.R
 
 
 class RecipesFragment : Fragment() {
