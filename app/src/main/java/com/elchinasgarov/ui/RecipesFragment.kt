@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.adapters.RecipesAdapter
 import com.elchinasgarov.foodrecipes.R
 import com.util.NetworkResult
+import com.util.observeOnce
 import com.viewmodels.MainViewModel
 import com.viewmodels.RecipesViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -64,7 +65,7 @@ class RecipesFragment : Fragment() {
 
     private fun requestApiData() {
         mainViewModel.getRecipes(recipesViewModel.applyQuesries())
-        mainViewModel.recipesResponse.observe(viewLifecycleOwner) { response ->
+        mainViewModel.recipesResponse.observeOnce(viewLifecycleOwner) { response ->
             when (response) {
                 is NetworkResult.Success -> {
                     response.data?.let { mAdapter.setData(it) }
