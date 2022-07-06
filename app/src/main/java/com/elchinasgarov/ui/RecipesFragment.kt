@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.adapters.RecipesAdapter
 import com.elchinasgarov.foodrecipes.R
@@ -15,6 +16,7 @@ import com.viewmodels.MainViewModel
 import com.viewmodels.RecipesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_recipes.view.*
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class RecipesFragment : Fragment() {
@@ -36,8 +38,27 @@ class RecipesFragment : Fragment() {
     ): View? {
         mView = inflater.inflate(R.layout.fragment_recipes, container, false)
         setUpRv()
-        requestApiData()
+        readDatabase()
         return mView
+    }
+
+    private fun setUpRv() {
+        mView.recyclerView.adapter = mAdapter
+        mView.recyclerView.layoutManager = LinearLayoutManager(requireContext())
+    }
+
+    private fun readDatabase() {
+        lifecycleScope.launch {
+            mainViewModel.readRecipes.observe(viewLifecycleOwner) { database ->
+                if (database.isNotEmpty()) {
+                    mAdapter.setData(database[0].foodRecipe)
+
+                } else {
+                    requestApiData()
+                }
+            }
+        }
+
     }
 
 
@@ -49,6 +70,7 @@ class RecipesFragment : Fragment() {
                     response.data?.let { mAdapter.setData(it) }
                 }
                 is NetworkResult.Error -> {
+                    loadDataFromCache()
                     Toast.makeText(
                         requireContext(),
                         response.message.toString(),
@@ -65,9 +87,15 @@ class RecipesFragment : Fragment() {
 
     }
 
-
-    private fun setUpRv() {
-        mView.recyclerView.adapter = mAdapter
-        mView.recyclerView.layoutManager = LinearLayoutManager(requireContext())
+    private fun loadDataFromCache() {
+        lifecycleScope.launch {
+            mainViewModel.readRecipes.observe(viewLifecycleOwner) { database ->
+                if (database.isNotEmpty()) {
+                    mAdapter.setData(database[0].foodRecipe)
+                }
+            }
+        }
     }
+
+
 }
