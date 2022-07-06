@@ -8,26 +8,33 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.MainViewModel
 import com.adapters.RecipesAdapter
 import com.elchinasgarov.foodrecipes.R
-import com.util.Constants.API_KEY
 import com.util.NetworkResult
+import com.viewmodels.MainViewModel
+import com.viewmodels.RecipesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_recipes.view.*
 
 @AndroidEntryPoint
 class RecipesFragment : Fragment() {
+    private lateinit var recipesViewModel: RecipesViewModel
     private lateinit var mainViewModel: MainViewModel
     private lateinit var mView: View
     private val mAdapter by lazy { RecipesAdapter() }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        mainViewModel = ViewModelProvider(requireActivity()).get((MainViewModel::class.java))
+        recipesViewModel = ViewModelProvider(requireActivity()).get(RecipesViewModel::class.java)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         mView = inflater.inflate(R.layout.fragment_recipes, container, false)
-        mainViewModel = ViewModelProvider(requireActivity()).get((MainViewModel::class.java))
         setUpRv()
         requestApiData()
         return mView
@@ -35,7 +42,7 @@ class RecipesFragment : Fragment() {
 
 
     private fun requestApiData() {
-        mainViewModel.getRecipes(applyQuesries())
+        mainViewModel.getRecipes(recipesViewModel.applyQuesries())
         mainViewModel.recipesResponse.observe(viewLifecycleOwner) { response ->
             when (response) {
                 is NetworkResult.Success -> {
@@ -55,19 +62,6 @@ class RecipesFragment : Fragment() {
 
             }
         }
-
-    }
-
-    private fun applyQuesries(): HashMap<String, String> {
-        val queries: HashMap<String, String> = HashMap()
-        queries["number"] = "50"
-        queries["apiKey"] = API_KEY
-        queries["type"] = "snack"
-        queries["diet"] = "vegan"
-        queries["addRecipeInformation"] = "true"
-        queries["fillIngredients"] = "true"
-
-        return queries
 
     }
 
