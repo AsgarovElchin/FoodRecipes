@@ -1,4 +1,4 @@
-package com
+package com.data.database
 
 import androidx.room.TypeConverter
 import com.elchinasgarov.models.FoodRecipe
