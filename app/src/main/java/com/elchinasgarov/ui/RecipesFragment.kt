@@ -8,8 +8,10 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.adapters.RecipesAdapter
+import com.elchinasgarov.foodrecipes.R
 import com.elchinasgarov.foodrecipes.databinding.FragmentRecipesBinding
 import com.util.NetworkResult
 import com.util.observeOnce
@@ -44,6 +46,11 @@ class RecipesFragment : Fragment() {
         binding.mainViewModel = mainViewModel
 
         setUpRv()
+
+
+        binding.floatActionButton.setOnClickListener {
+            findNavController().navigate(R.id.action_recipesFragment_to_recipesBottomSheetFragment)
+        }
         readDatabase()
         return binding.root
     }
