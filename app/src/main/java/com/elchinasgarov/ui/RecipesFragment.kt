@@ -10,26 +10,27 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.adapters.RecipesAdapter
-import com.elchinasgarov.foodrecipes.R
+import com.elchinasgarov.foodrecipes.databinding.FragmentRecipesBinding
 import com.util.NetworkResult
 import com.util.observeOnce
 import com.viewmodels.MainViewModel
 import com.viewmodels.RecipesViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_recipes.view.*
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class RecipesFragment : Fragment() {
+    private var _binding: FragmentRecipesBinding? = null
+    private val binding get() = _binding!!
     private lateinit var recipesViewModel: RecipesViewModel
     private lateinit var mainViewModel: MainViewModel
-    private lateinit var mView: View
     private val mAdapter by lazy { RecipesAdapter() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mainViewModel = ViewModelProvider(requireActivity()).get((MainViewModel::class.java))
         recipesViewModel = ViewModelProvider(requireActivity()).get(RecipesViewModel::class.java)
+
     }
 
     override fun onCreateView(
@@ -37,15 +38,19 @@ class RecipesFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        mView = inflater.inflate(R.layout.fragment_recipes, container, false)
+
+        _binding = FragmentRecipesBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.mainViewModel = mainViewModel
+
         setUpRv()
         readDatabase()
-        return mView
+        return binding.root
     }
 
     private fun setUpRv() {
-        mView.recyclerView.adapter = mAdapter
-        mView.recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerView.adapter = mAdapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
     }
 
     private fun readDatabase() {
@@ -96,6 +101,11 @@ class RecipesFragment : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 
 
