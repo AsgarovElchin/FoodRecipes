@@ -9,15 +9,16 @@ import com.util.Constants
 import com.util.Constants.API_KEY
 import com.util.Constants.DEFAULT_DIET_TYPE
 import com.util.Constants.DEFAULT_MEAL_TYPE
+import com.util.Constants.DEFAULT_RECIPES_NUMBER
 import com.util.Constants.QUERY_ADD_RECIPE_INFORMATION
 import com.util.Constants.QUERY_API_KEY
 import com.util.Constants.QUERY_DIET
 import com.util.Constants.QUERY_FILL_INGREDIENTS
 import com.util.Constants.QUERY_NUMBER
+import com.util.Constants.QUERY_SEARCH
 import com.util.Constants.QUERY_TYPE
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,10 +33,10 @@ class RecipesViewModel @Inject constructor(
 
     val readMealAndDietType = dataStoreRepository.readMealAndDietType
 
-    fun saveMealAndDietType(mealType:String,mealTypeId:Int,dietType:String,dietTypeId:Int)=
+    fun saveMealAndDietType(mealType: String, mealTypeId: Int, dietType: String, dietTypeId: Int) =
         viewModelScope.launch(Dispatchers.IO) {
-            Log.d("slohs","$mealType")
-            Log.d("slohs","$dietType")
+            Log.d("slohs", "$mealType")
+            Log.d("slohs", "$dietType")
 
             dataStoreRepository.saveMealAndDietType(mealType, mealTypeId, dietType, dietTypeId)
         }
@@ -44,8 +45,8 @@ class RecipesViewModel @Inject constructor(
         val queries: HashMap<String, String> = HashMap()
 
         viewModelScope.launch {
-            readMealAndDietType.collect{value->
-                Log.d("aloha","lololo+$value")
+            readMealAndDietType.collect { value ->
+                Log.d("aloha", "lololo+$value")
                 mealType = value.selectedMealType
                 dietType = value.selectedDietType
             }
@@ -59,6 +60,18 @@ class RecipesViewModel @Inject constructor(
         queries[QUERY_FILL_INGREDIENTS] = "true"
 
         return queries
+
+    }
+
+    fun applySearchQuery(searchQuery: String): HashMap<String, String> {
+        val queries: HashMap<String, String> = HashMap()
+        queries[QUERY_SEARCH] = searchQuery
+        queries[QUERY_NUMBER] = DEFAULT_RECIPES_NUMBER
+        queries[QUERY_API_KEY] = API_KEY
+        queries[QUERY_ADD_RECIPE_INFORMATION] = "true"
+        queries[QUERY_FILL_INGREDIENTS] = "true"
+        return queries
+
 
     }
 }

@@ -3,8 +3,8 @@ package com.elchinasgarov.ui
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.SearchView
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -22,7 +22,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class RecipesFragment : Fragment(),SearchView.OnQueryTextListener{
+class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
     private val args by navArgs<RecipesFragmentArgs>()
     private var _binding: FragmentRecipesBinding? = null
     private val binding get() = _binding!!
@@ -64,13 +64,17 @@ class RecipesFragment : Fragment(),SearchView.OnQueryTextListener{
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.recipes_menu,menu)
+        inflater.inflate(R.menu.recipes_menu, menu)
         val search = menu.findItem(R.id.menu_search)
         val searchView = search.actionView as? SearchView
         searchView?.isSubmitButtonEnabled = true
         searchView?.setOnQueryTextListener(this)
     }
-    override fun onQueryTextSubmit(p0: String?): Boolean {
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        if (query != null) {
+            searchApiData(query)
+        }
         return true
     }
 
@@ -92,18 +96,18 @@ class RecipesFragment : Fragment(),SearchView.OnQueryTextListener{
     }
 
     private fun requestApiData() {
-        Log.d("aloha","test")
+        Log.d("aloha", "test")
         mainViewModel.getRecipes(recipesViewModel.applyQuesries())
 
         mainViewModel.recipesResponse.observe(viewLifecycleOwner) { response ->
-            Log.d("aloha","response+${response.data}")
+            Log.d("aloha", "response+${response.data}")
             when (response) {
                 is NetworkResult.Success -> {
                     response.data?.let { mAdapter.setData(it) }
-                    Log.d("aloha","yes")
+                    Log.d("aloha", "yes")
                 }
                 is NetworkResult.Error -> {
-                    Log.d("aloha","no")
+                    Log.d("aloha", "no")
                     loadDataFromCache()
                     Toast.makeText(
                         requireContext(),
@@ -121,6 +125,30 @@ class RecipesFragment : Fragment(),SearchView.OnQueryTextListener{
 
     }
 
+    private fun searchApiData(searchQuery: String) {
+        mainViewModel.searchRecipes(recipesViewModel.applySearchQuery(searchQuery))
+        mainViewModel.searchedRecipesResponse.observe(viewLifecycleOwner, { response ->
+            when (response) {
+                is NetworkResult.Success -> {
+                    val foodRecipe = response.data
+                    foodRecipe?.let { mAdapter.setData(it) }
+                }
+                is NetworkResult.Error -> {
+                    loadDataFromCache()
+                    Toast.makeText(
+                        requireContext(),
+                        response.message.toString(),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                is NetworkResult.Loading -> {
+                    Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
+    }
+
+
     private fun loadDataFromCache() {
         lifecycleScope.launch {
             mainViewModel.readRecipes.observe(viewLifecycleOwner) { database ->
@@ -137,6 +165,5 @@ class RecipesFragment : Fragment(),SearchView.OnQueryTextListener{
     }
 
 
-
-
 }
+
