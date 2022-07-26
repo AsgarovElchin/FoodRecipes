@@ -1,6 +1,7 @@
 package com.elchinasgarov.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.adapters.RecipesAdapter
 import com.elchinasgarov.foodrecipes.R
@@ -22,6 +24,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class RecipesFragment : Fragment() {
+    private val args by navArgs<RecipesFragmentArgs>()
     private var _binding: FragmentRecipesBinding? = null
     private val binding get() = _binding!!
     private lateinit var recipesViewModel: RecipesViewModel
@@ -62,27 +65,30 @@ class RecipesFragment : Fragment() {
 
     private fun readDatabase() {
         lifecycleScope.launch {
-            mainViewModel.readRecipes.observe(viewLifecycleOwner) { database ->
-                if (database.isNotEmpty()) {
-                    mAdapter.setData(database[0].foodRecipe)
-
+            mainViewModel.readRecipes.observeOnce(viewLifecycleOwner, { database ->
+                if (database.isNotEmpty() && !args.backFromBottomSheet) {
+                    Log.d("RecipesFragment", "readDatabase called!")
+                    mAdapter.setData(database.first().foodRecipe)
                 } else {
                     requestApiData()
                 }
-            }
+            })
         }
-
     }
 
-
     private fun requestApiData() {
+        Log.d("aloha","test")
         mainViewModel.getRecipes(recipesViewModel.applyQuesries())
-        mainViewModel.recipesResponse.observeOnce(viewLifecycleOwner) { response ->
+
+        mainViewModel.recipesResponse.observe(viewLifecycleOwner) { response ->
+            Log.d("aloha","response+${response.data}")
             when (response) {
                 is NetworkResult.Success -> {
                     response.data?.let { mAdapter.setData(it) }
+                    Log.d("aloha","yes")
                 }
                 is NetworkResult.Error -> {
+                    Log.d("aloha","no")
                     loadDataFromCache()
                     Toast.makeText(
                         requireContext(),

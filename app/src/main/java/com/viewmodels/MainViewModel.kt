@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.*
 import com.data.Repository
@@ -37,6 +38,7 @@ class MainViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.M)
     fun getRecipes(queries: Map<String, String>) = viewModelScope.launch {
         getRecipesSafeCall(queries)
+
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
