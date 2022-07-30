@@ -1,8 +1,10 @@
 package com.util
 
 object Constants {
+    const val BASE_IMAGE_URL = "https://spoonacular.com/cdn/ingredients_100x100/"
     const val API_KEY = "86de5afce1124181b3ad0047a7dd0d05"
     const val BASE_URL = "https://api.spoonacular.com"
+    const val RECIPE_RESULT_KEY ="recipeBundle"
 
     // API QUERY KEYS
     const val QUERY_SEARCH = "query"
